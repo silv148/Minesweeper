@@ -30,7 +30,26 @@ void ValidateInput(int& input, const int minVal, const int maxVal) {
 	}
 }
 
+void InitBoard(char** realboard,const int size, const char symbol)
+{
+	for (int i = 0; i <= size; i++)
+	{
+		for (int j = 0; j <= size; j++)
+		{
+			realboard[i][j] = symbol;
+		}
+	}
+}
+
+void DeleteMatrix(char** arr, int size) {
+	for (int i = 0; i < size; i++) {
+		delete[] arr[i];
+	}
+	delete[] arr;
+}
+
 void Create(int level) {
+	const char MARKED_CELLS = 'X', FILL_CELLS = '*', REAL_CELLS = '0';
 	int boardSize = 0, minesCount = 0;
 	switch (level) {
 	case 1:
@@ -55,17 +74,19 @@ void Create(int level) {
 		break;
 	}
 
-	char** board = new char* [boardSize];
-
+	char** realboard = new char* [boardSize];
+	char** displayboard = new char* [boardSize];
 	for (int i = 0; i < boardSize; i++) {
-		board[i] = new char[boardSize];
+		realboard[i] = new char[boardSize];
+	}
+	for (int i = 0; i < boardSize; i++) {
+		displayboard[i] = new char[boardSize];
 	}
 
-
-	for (int i = 0; i < boardSize; i++) {
-		delete[] board[i];
-	}
-
+	InitBoard(realboard, boardSize, REAL_CELLS);
+	InitBoard(displayboard, boardSize, FILL_CELLS);
+	DeleteMatrix(displayboard, boardSize);
+	DeleteMatrix(realboard, boardSize);
 }
 
 int main()
