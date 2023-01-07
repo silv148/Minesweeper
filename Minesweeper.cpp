@@ -2,6 +2,8 @@
 #include<cstdlib>
 #include<ctime>
 
+const char MARKED_CELLS = 'X', MINE = '@', FILL_CELLS = '*', REAL_CELLS = '0';
+
 void PrintStart() {
 	system("title = MINESWEEPER");
 
@@ -32,12 +34,36 @@ void ValidateInput(int& input, const int minVal, const int maxVal) {
 
 void InitBoard(char** realboard,const int size, const char symbol)
 {
-	for (int i = 0; i <= size; i++)
+	for (int i = 0; i < size; i++)
 	{
-		for (int j = 0; j <= size; j++)
+		for (int j = 0; j < size; j++)
 		{
 			realboard[i][j] = symbol;
 		}
+	}
+}
+
+void PrintBoard(char** board, int size) 
+{
+	std::cout << std::endl << "    ";
+	for (int i = 0; i < size; i++)
+	{
+		i < 10 ? std::cout << "   " <<i : std::cout << "  " << i;
+	}
+	std::cout << std::endl << "   ";
+	for (int i = 0; i <= (size*2); i++)
+	{
+		std::cout << "--";
+	}
+	std::cout << std::endl;
+	for (int i = 0; i < size; i++)
+	{
+		i < 10 ? std::cout << "   " << i << " | " : std::cout << "  " << i << " | ";
+		for (int j = 0; j < size; j++)
+		{
+			std::cout << board[i][j] << " | ";
+		}
+		std::cout << std::endl;
 	}
 }
 
@@ -46,6 +72,16 @@ void DeleteMatrix(char** arr, int size) {
 		delete[] arr[i];
 	}
 	delete[] arr;
+}
+
+void Play(char** realBoard, int size, int minesCount) {
+	char** displayboard = new char* [size];
+	for (int i = 0; i < size; i++) {
+		displayboard[i] = new char[size];
+	}
+	InitBoard(displayboard, size, FILL_CELLS);
+	PrintBoard(displayboard, size);
+	DeleteMatrix(displayboard, size);
 }
 
 void Create(int level) {
@@ -75,17 +111,12 @@ void Create(int level) {
 	}
 
 	char** realboard = new char* [boardSize];
-	char** displayboard = new char* [boardSize];
 	for (int i = 0; i < boardSize; i++) {
 		realboard[i] = new char[boardSize];
 	}
-	for (int i = 0; i < boardSize; i++) {
-		displayboard[i] = new char[boardSize];
-	}
-
 	InitBoard(realboard, boardSize, REAL_CELLS);
-	InitBoard(displayboard, boardSize, FILL_CELLS);
-	DeleteMatrix(displayboard, boardSize);
+	Play(realboard, boardSize, minesCount);
+
 	DeleteMatrix(realboard, boardSize);
 }
 
