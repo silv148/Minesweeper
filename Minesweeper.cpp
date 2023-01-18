@@ -67,6 +67,62 @@ void PrintBoard(char** board, int size)
 	}
 }
 
+
+
+void Hints(int x, int y, char** arr, const int size)
+{
+	if (x < size && y < size) {
+		if (x >= 0 && y >= 0) {
+			if (arr[x][y] != MINE) {
+				arr[x][y] += 1;
+			}
+		}
+	}
+}
+
+bool IsMemberOfMinesArray(int* minesArray, int x, int y, const int& size) {
+	for (int i = 0; i < size; i += 2)
+		if (minesArray[i] == x && minesArray[i + 1] == y)
+			return true;
+
+	return false;
+}
+
+void InputMinesArray(int* minesArray, int size) {
+	for (int i = 0; i < size; i++) {
+		minesArray[i] = -1;
+	}
+}
+
+void MineGenerator(char** real, int size, int minesCount)
+{
+	int minesArrSize = minesCount * 2;
+	int* minesArray = new int[minesArrSize];
+	InputMinesArray(minesArray, minesArrSize);
+	for (int i = 0; i < minesArrSize; i += 2) {
+		int indexOne = rand() % size;
+		int indexTwo = rand() % size;
+		while (IsMemberOfMinesArray(minesArray, indexOne, indexTwo, minesArrSize)) {
+			srand(time(NULL));
+			indexOne = rand() % size;
+			indexTwo = rand() % size;
+		}
+		minesArray[i] = indexOne;
+		minesArray[i + 1] = indexTwo;
+		real[indexOne][indexTwo] = MINE;
+		Hints(indexOne, indexTwo + 1, real, size);
+		Hints(indexOne, indexTwo - 1, real, size);
+		Hints(indexOne - 1, indexTwo, real, size);
+		Hints(indexOne - 1, indexTwo + 1, real, size);
+		Hints(indexOne - 1, indexTwo - 1, real, size);
+		Hints(indexOne + 1, indexTwo, real, size);
+		Hints(indexOne + 1, indexTwo + 1, real, size);
+		Hints(indexOne + 1, indexTwo - 1, real, size);
+	}
+	delete[] minesArray;
+}
+
+
 void DeleteMatrix(char** arr, int size) {
 	for (int i = 0; i < size; i++) {
 		delete[] arr[i];
@@ -80,6 +136,7 @@ void Play(char** realBoard, int size, int minesCount) {
 		displayboard[i] = new char[size];
 	}
 	InitBoard(displayboard, size, FILL_CELLS);
+	MineGenerator(realBoard, size, minesCount);
 	PrintBoard(displayboard, size);
 	DeleteMatrix(displayboard, size);
 }
