@@ -2,7 +2,7 @@
 #include<cstdlib>
 #include<ctime>
 
-const char MARKED_CELLS = 'X', MINE = '@', FILL_CELLS = '*', REAL_CELLS = '0';
+const char MARKED_CELLS = 'X', MINE = '@', DISP_CELL = '*', EMPTY_CELL = '0';
 
 void PrintStart() {
 	system("title = MINESWEEPER");
@@ -69,12 +69,12 @@ void PrintBoard(char** board, int size)
 
 
 
-void Hints(int x, int y, char** arr, const int size)
+void Hints(int x, int y, char** board, const int size)
 {
 	if (x < size && y < size) {
 		if (x >= 0 && y >= 0) {
-			if (arr[x][y] != MINE) {
-				arr[x][y] += 1;
+			if (board[x][y] != MINE) {
+				board[x][y] += 1;
 			}
 		}
 	}
@@ -94,7 +94,7 @@ void InputMinesArray(int* minesArray, int size) {
 	}
 }
 
-void MineGenerator(char** real, int size, int minesCount)
+void MineGenerator(char** realBoard, int size, int minesCount)
 {
 	int minesArrSize = minesCount * 2;
 	int* minesArray = new int[minesArrSize];
@@ -109,15 +109,15 @@ void MineGenerator(char** real, int size, int minesCount)
 		}
 		minesArray[i] = indexOne;
 		minesArray[i + 1] = indexTwo;
-		real[indexOne][indexTwo] = MINE;
-		Hints(indexOne, indexTwo + 1, real, size);
-		Hints(indexOne, indexTwo - 1, real, size);
-		Hints(indexOne - 1, indexTwo, real, size);
-		Hints(indexOne - 1, indexTwo + 1, real, size);
-		Hints(indexOne - 1, indexTwo - 1, real, size);
-		Hints(indexOne + 1, indexTwo, real, size);
-		Hints(indexOne + 1, indexTwo + 1, real, size);
-		Hints(indexOne + 1, indexTwo - 1, real, size);
+		realBoard[indexOne][indexTwo] = MINE;
+		for (int j = (indexOne - 1); j <= indexOne + 1; j++) {
+			for (int k = indexTwo - 1; k <= indexTwo + 1; k++) {
+				if (j == indexOne && k == indexTwo) {
+					continue;
+				}
+				Hints(j, k, realBoard, size);
+			}
+		}
 	}
 	delete[] minesArray;
 }
@@ -130,19 +130,57 @@ void DeleteMatrix(char** arr, int size) {
 	delete[] arr;
 }
 
+void RevealWhenEmpty(int x, int y, const char** realBoard, char** dispBoard, const int size)
+{
+	bool notMine = realBoard[x][y] != MINE;
+	bool isDispCell = dispBoard[x][y] == DISP_CELL;
+	bool isInArrBoundary = x >= 0 && y >= 0 && x < size && y < size;
+	if (notMine && isDispCell && isInArrBoundary)
+	{
+		dispBoard[x][y] = realBoard[x][y];
+		if (realBoard[x][y] == EMPTY_CELL)
+		{
+			dispBoard[x][y] = ' ';
+			for (int i = (x - 1); i <= x + 1; i++) {
+				for (int j = y - 1; j <= y + 1; j++) {
+					if (i == x && j == y) {
+						continue;
+					}
+					RevealWhenEmpty(i,j, realBoard, dispBoard, size);
+				}
+			}
+		}
+	}
+}
+
+void RevealMine(char** dispBoard, const char** realBoard, const int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			if (realBoard[i][j] == MINE)
+			{
+				dispBoard[i][j] = realBoard[i][j];
+			}
+		}
+	}
+	PrintBoard(dispBoard, size);
+}
+
 void Play(char** realBoard, int size, int minesCount) {
 	char** displayboard = new char* [size];
 	for (int i = 0; i < size; i++) {
 		displayboard[i] = new char[size];
 	}
-	InitBoard(displayboard, size, FILL_CELLS);
+	InitBoard(displayboard, size, DISP_CELL);
 	MineGenerator(realBoard, size, minesCount);
 	PrintBoard(displayboard, size);
 	DeleteMatrix(displayboard, size);
 }
 
 void Create(int level) {
-	const char MARKED_CELLS = 'X', FILL_CELLS = '*', REAL_CELLS = '0';
+	const char MARKED_CELLS = 'X', DISP_CELL = '*', EMPTY_CELL = '0';
 	int boardSize = 0, minesCount = 0;
 	switch (level) {
 	case 1:
@@ -171,7 +209,7 @@ void Create(int level) {
 	for (int i = 0; i < boardSize; i++) {
 		realboard[i] = new char[boardSize];
 	}
-	InitBoard(realboard, boardSize, REAL_CELLS);
+	InitBoard(realboard, boardSize, EMPTY_CELL);
 	Play(realboard, boardSize, minesCount);
 
 	DeleteMatrix(realboard, boardSize);
