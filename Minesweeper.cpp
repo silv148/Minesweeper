@@ -168,6 +168,57 @@ void RevealMine(char** dispBoard, const char** realBoard, const int size)
 	PrintBoard(dispBoard, size);
 }
 
+void ReentereCoordinates(int& x, int& y, int maxVal) {
+	std::cout << "Enter row number: ";
+	std::cin >> x;
+	std::cout << std::endl;
+	std::cout << "Enter column number: ";
+	std::cin >> y;
+}
+
+void OutsideArrBoundary(int& x, int& y, const int size) {
+	bool isInArrBoundary = x >= 0 && y >= 0 && x < size&& y < size;
+	while (!isInArrBoundary) {
+		std::cout << "Coordinates out of boundary! Try again!" << std::endl;
+		ReentereCoordinates(x, y, size);
+	}
+}
+
+void OpenedCell(int& x, int& y, char** realBoard, char** dispBoard, const int size) {
+	while (dispBoard[x][y] == realBoard[x][y]) {
+		std::cout << "This cell is already open! Try again!" << std::endl;
+		ReentereCoordinates(x, y, size);
+	}
+}
+
+void ValidateCoordinates(int& x, int& y, char** realBoard, char** dispBoard, int size) {
+	bool isInArrBoundary = x >= 0 && y >= 0 && x < size&& y < size;
+	if (isInArrBoundary) {
+		OutsideArrBoundary(x, y, size);
+	}
+	if (dispBoard[x][y] == realBoard[x][y]) {
+		OpenedCell(x, y, realBoard, dispBoard, size);
+	}
+}
+
+void PlayerInputCommands(char** realBoard, char** dispBoard, int size)
+{
+	int command = 0;
+	PrintInputInfo();
+	std::cin >> command;
+	while (command < 1 || command > 3) {
+		std::cout << "Invalid command! Enter again!" << std::endl <<
+			"YOUR COMMAND: ";
+		std::cin >> command;
+	}
+	int x = 0, y = 0;
+	std::cout << "Enter row number: ";
+	std::cin >> x;
+	std::cout << "Enter column number: ";
+	std::cin >> y;
+	ValidateCoordinates(x, y, realBoard, dispBoard, size);
+}
+
 void Play(char** realBoard, int size, int minesCount) {
 	char** displayboard = new char* [size];
 	for (int i = 0; i < size; i++) {
