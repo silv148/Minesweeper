@@ -2,7 +2,7 @@
 #include<cstdlib>
 #include<ctime>
 
-const char MARKED_CELLS = 'X', MINE = '@', DISP_CELL = '*', EMPTY_CELL = '0';
+const char MARKED_CELL = 'X', MINE = '@', DISP_CELL = '*', EMPTY_CELL = '0';
 
 void PrintStart() {
 	system("title = MINESWEEPER");
@@ -32,7 +32,7 @@ void ValidateInput(int& input, const int minVal, const int maxVal) {
 	}
 }
 
-void InitBoard(char** realboard,const int size, const char symbol) {
+void InitBoard(char** realboard, const int size, const char symbol) {
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
 			realboard[i][j] = symbol;
@@ -40,13 +40,13 @@ void InitBoard(char** realboard,const int size, const char symbol) {
 	}
 }
 
-void PrintBoard(char** board, int size)  {
+void PrintBoard(char** board, const int size) {
 	std::cout << std::endl << "    ";
 	for (int i = 0; i < size; i++) {
-		i < 10 ? std::cout << "   " <<i : std::cout << "  " << i;
+		i < 10 ? std::cout << "   " << i : std::cout << "  " << i;
 	}
 	std::cout << std::endl << "   ";
-	for (int i = 0; i <= (size*2); i++) {
+	for (int i = 0; i <= (size * 2); i++) {
 		std::cout << "--";
 	}
 	std::cout << std::endl;
@@ -59,13 +59,11 @@ void PrintBoard(char** board, int size)  {
 	}
 }
 
-
-
-void Hints(int x, int y, char** board, const int size) {
+void Hints(int x, int y, char** arr, const int size) {
 	if (x < size && y < size) {
 		if (x >= 0 && y >= 0) {
-			if (board[x][y] != MINE) {
-				board[x][y] += 1;
+			if (arr[x][y] != MINE) {
+				arr[x][y] += 1;
 			}
 		}
 	}
@@ -79,13 +77,13 @@ bool IsMemberOfMinesArray(int* minesArray, int x, int y, const int& size) {
 	return false;
 }
 
-void InputMinesArray(int* minesArray, int size) {
+void InputMinesArray(int* minesArray, const int size) {
 	for (int i = 0; i < size; i++) {
 		minesArray[i] = -1;
 	}
 }
 
-void MineGenerator(char** realBoard, int size, int minesCount) {
+void MineGenerator(char** real, const int size, int minesCount) {
 	int minesArrSize = minesCount * 2;
 	int* minesArray = new int[minesArrSize];
 	InputMinesArray(minesArray, minesArrSize);
@@ -99,57 +97,54 @@ void MineGenerator(char** realBoard, int size, int minesCount) {
 		}
 		minesArray[i] = indexOne;
 		minesArray[i + 1] = indexTwo;
-		realBoard[indexOne][indexTwo] = MINE;
+		real[indexOne][indexTwo] = MINE;
 		for (int j = (indexOne - 1); j <= indexOne + 1; j++) {
 			for (int k = indexTwo - 1; k <= indexTwo + 1; k++) {
 				if (j == indexOne && k == indexTwo) {
 					continue;
 				}
-				Hints(j, k, realBoard, size);
+				Hints(j, k, real, size);
 			}
 		}
 	}
 	delete[] minesArray;
 }
 
-
-void DeleteMatrix(char** arr, int size) {
+void DeleteMatrix(char** arr, const int size) {
 	for (int i = 0; i < size; i++) {
 		delete[] arr[i];
 	}
 	delete[] arr;
 }
 
-void RevealWhenEmpty(int x, int y, const char** realBoard, char** dispBoard, const int size) {
-	bool notMine = realBoard[x][y] != MINE;
-	bool isDispCell = dispBoard[x][y] == DISP_CELL;
-	bool isInArrBoundary = x >= 0 && y >= 0 && x < size && y < size;
-	if (notMine && isDispCell && isInArrBoundary) {
-		dispBoard[x][y] = realBoard[x][y];
-		if (realBoard[x][y] == EMPTY_CELL) {
-			dispBoard[x][y] = ' ';
+void RevealWhenEmpty(int x, int y, char** real, char** disp, int size) {
+	bool isInBoundary = x >= 0 && y >= 0 && x < size&& y < size;
+	if (isInBoundary && real[x][y] != MINE && disp[x][y] == DISP_CELL) {
+		disp[x][y] = real[x][y];
+		if (real[x][y] == EMPTY_CELL) {
+			disp[x][y] = ' ';
 			for (int i = (x - 1); i <= x + 1; i++) {
 				for (int j = y - 1; j <= y + 1; j++) {
 					if (i == x && j == y) {
 						continue;
 					}
-					RevealWhenEmpty(i,j, realBoard, dispBoard, size);
+					RevealWhenEmpty(i, j, real, disp, size);
 				}
 			}
 		}
 	}
 }
 
-void RevealMine(char** dispBoard, const char** realBoard, const int size) {
+void RevealMine(char** disp, char** real, const int size) {
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
-			if (realBoard[i][j] == MINE) {
-				dispBoard[i][j] = realBoard[i][j];
+			if (real[i][j] == MINE) {
+				disp[i][j] = real[i][j];
 			}
 		}
 	}
 	system("cls");
-	PrintBoard(dispBoard, size);
+	PrintBoard(disp, size);
 }
 
 void ReentereCoordinates(int& x, int& y, int maxVal) {
@@ -160,14 +155,6 @@ void ReentereCoordinates(int& x, int& y, int maxVal) {
 	std::cin >> y;
 }
 
-void OutsideArrBoundary(int& x, int& y, const int size) {
-	bool isInArrBoundary = x >= 0 && y >= 0 && x < size&& y < size;
-	while (!isInArrBoundary) {
-		std::cout << "Coordinates out of boundary! Try again!" << std::endl;
-		ReentereCoordinates(x, y, size);
-	}
-}
-
 void OpenedCell(int& x, int& y, char** realBoard, char** dispBoard, const int size) {
 	while (dispBoard[x][y] == realBoard[x][y]) {
 		std::cout << "This cell is already open! Try again!" << std::endl;
@@ -175,6 +162,13 @@ void OpenedCell(int& x, int& y, char** realBoard, char** dispBoard, const int si
 	}
 }
 
+void OutsideArrBoundary(int& x, int& y, const int size) {
+	bool isInArrBoundary = x >= 0 && y >= 0 && x < size&& y < size;
+	while (!isInArrBoundary) {
+		std::cout << "Coordinates out of boundary! Try again!" << std::endl;
+		ReentereCoordinates(x, y, size);
+	}
+}
 
 void CellAlreadyMarked(int& x, int& y, char** dispBoard, const int size) {
 	while (dispBoard[x][y] == MARKED_CELL) {
@@ -202,9 +196,11 @@ void OpenCell(int x, int y, char** realBoard, char** dispBoard, const int size) 
 		break;
 	default: dispBoard[x][y] = realBoard[x][y];
 		break;
+	}
+}
 
-
-void MarkCell(int x, int y, char** dispBoard, int size) {
+void MarkCell(int x, int y, char** dispBoard, int size)
+{
 	if (dispBoard[x][y] == MARKED_CELL) {
 		CellAlreadyMarked(x, y, dispBoard, size);
 	}
@@ -219,9 +215,9 @@ void UnmarkCell(int x, int y, char** dispBoard, int size) {
 }
 
 void PrintInputInfo() {
-	std::cout << "Enter 1 to open a cell." << std::endl <<
-		"Enter 2 to mark a cell." << std::endl <<
-		"Enter 3 to unmark a cell." << std::endl <<
+	std::cout << "Enter 1 if you want to open a cell." << std::endl <<
+		"Enter 2 if you want to mark a cell." << std::endl <<
+		"Enter 3 if you want to mark a cell." << std::endl <<
 		"YOUR COMMAND: ";
 }
 
@@ -235,7 +231,8 @@ void ValidateCoordinates(int& x, int& y, char** realBoard, char** dispBoard, int
 	}
 }
 
-void PlayerInputCommands(char** realBoard, char** dispBoard, int size) {
+void PlayerInputCommands(char** realBoard, char** dispBoard, int size)
+{
 	int command = 0;
 	PrintInputInfo();
 	std::cin >> command;
@@ -285,7 +282,6 @@ bool HasWon(char** realBoard, char** dispBoard, int size, int minesCount) {
 
 	return false;
 }
-
 bool HasLost(char** dispBoard, int size) {
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -298,7 +294,7 @@ bool HasLost(char** dispBoard, int size) {
 }
 
 bool Replay() {
-	char choice;
+	char choice = ' ';
 	std::cout << "Do you want to play again?!" << std::endl;
 	do {
 		std::cout << "Enter your choice (Y/N): " << std::endl;
@@ -323,7 +319,7 @@ bool Replay() {
 	} while (choice != 'Y' || choice != 'N');
 }
 
-void Play(char** realBoard, int size, int minesCount) {
+void Play(char** realBoard, const int size, int minesCount) {
 	char** displayboard = new char* [size];
 	for (int i = 0; i < size; i++) {
 		displayboard[i] = new char[size];
@@ -349,7 +345,7 @@ void Play(char** realBoard, int size, int minesCount) {
 }
 
 void Create(int level) {
-	const char MARKED_CELLS = 'X', DISP_CELL = '*', EMPTY_CELL = '0';
+	const char MARKED_CELL = 'X', DISP_CELL = '*', EMPTY_CELL = '0';
 	int boardSize = 0, minesCount = 0;
 	switch (level) {
 	case 1:
@@ -370,7 +366,7 @@ void Create(int level) {
 		std::cout << "Enter mines count ["
 			<< (boardSize - 2) << " < mines count < "
 			<< (3 * boardSize + 1) << "]: ";
-		ValidateInput(minesCount, boardSize - 2, 3*boardSize - 1);
+		ValidateInput(minesCount, boardSize - 2, 3 * boardSize - 1);
 		break;
 	}
 
