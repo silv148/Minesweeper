@@ -88,10 +88,10 @@ void MineGenerator(char** realBoard, const int size, int minesCount) {
 	int* minesArray = new int[minesArrSize];
 	InputMinesArray(minesArray, minesArrSize);
 	for (int i = 0; i < minesArrSize; i += 2) {
+		srand(time(NULL));
 		int indexOne = rand() % size;
 		int indexTwo = rand() % size;
 		while (IsMemberOfMinesArray(minesArray, indexOne, indexTwo, minesArrSize)) {
-			srand(time(NULL));
 			indexOne = rand() % size;
 			indexTwo = rand() % size;
 		}
@@ -150,7 +150,6 @@ void RevealMine(char** dispBoard, char** realBoard, const int size) {
 void ReentereCoordinates(int& x, int& y, int maxVal) {
 	std::cout << "Enter row number: ";
 	std::cin >> x;
-	std::cout << std::endl;
 	std::cout << "Enter column number: ";
 	std::cin >> y;
 }
@@ -167,6 +166,7 @@ void OutsideArrBoundary(int& x, int& y, const int size) {
 	while (isNotInArrBoundary) {
 		std::cout << "Coordinates out of boundary! Try again!" << std::endl;
 		ReentereCoordinates(x, y, size);
+		bool isNotInArrBoundary = (x < 0 || y < 0 || x > size || y > size);
 	}
 }
 
@@ -223,7 +223,7 @@ void PrintInputInfo() {
 
 void ValidateCoordinates(int& x, int& y, char** realBoard, char** dispBoard, int size) {
 	bool isInArrBoundary = x >= 0 || y >= 0 || x < size || y < size;
-	if (isInArrBoundary) {
+	if (!isInArrBoundary) {
 		OutsideArrBoundary(x, y, size);
 	}
 	if (dispBoard[x][y] == realBoard[x][y] || dispBoard[x][y] == ' ') {
@@ -245,17 +245,15 @@ void PlayerInputCommands(char** realBoard, char** dispBoard, int size)
 	std::cin >> x;
 	std::cout << "Enter column number: ";
 	std::cin >> y;
+	ValidateCoordinates(x, y, realBoard, dispBoard, size);
 	switch (command) {
 	case '1':
-		ValidateCoordinates(x, y, realBoard, dispBoard, size);
 		OpenCell(x, y, realBoard, dispBoard, size);
 		break;
 	case '2':
-		ValidateCoordinates(x, y, realBoard, dispBoard, size);
 		MarkCell(x, y, dispBoard, size);
 		break;
 	case '3':
-		ValidateCoordinates(x, y, realBoard, dispBoard, size);
 		UnmarkCell(x, y, dispBoard, size);
 		break;
 	default:
@@ -277,13 +275,12 @@ bool HasWon(char** realBoard, char** dispBoard, int size, int minesCount) {
 			}
 		}
 	}
+	if (minesCounter - unopenedCells == minesCount) {
+		return true;
+	}
 	if (minesCounter == minesCount) {
 		return true;
 	}
-	if (minesCounter - 1 == minesCount && unopenedCells == 1) {
-		return true;
-	}
-
 	return false;
 }
 bool HasLost(char** dispBoard, int size) {
@@ -326,7 +323,7 @@ void Play(char** realBoard, const int size, int minesCount) {
 	InitBoard(displayboard, size, DISP_CELL);
 	MineGenerator(realBoard, size, minesCount);
 	bool playersWin = HasWon(realBoard, displayboard, size, minesCount);
-	while (!playersWin) {
+	do {
 		system("cls");
 		PrintBoard(displayboard, size);
 		PlayerInputCommands(realBoard, displayboard, size);
@@ -335,7 +332,7 @@ void Play(char** realBoard, const int size, int minesCount) {
 			break;
 		}
 		playersWin = HasWon(realBoard, displayboard, size, minesCount);
-	}
+	} while (!playersWin);
 	if (playersWin) {
 		std::cout << "CONGRATULATIONS!" << std::endl <<
 			"You have won in this game!" << std::endl;
