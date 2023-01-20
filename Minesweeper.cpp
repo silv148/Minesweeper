@@ -148,6 +148,7 @@ void RevealMine(char** dispBoard, const char** realBoard, const int size) {
 			}
 		}
 	}
+	system("cls");
 	PrintBoard(dispBoard, size);
 }
 
@@ -214,13 +215,13 @@ void UnmarkCell(int x, int y, char** dispBoard, int size) {
 	if (dispBoard[x][y] != MARKED_CELL) {
 		CellNotMarked(x, y, dispBoard, size);
 	}
-	dispBoard[x][y] = MARKED_CELL;
+	dispBoard[x][y] = DISP_CELL;
 }
 
 void PrintInputInfo() {
-	std::cout << "Enter 1 if you want to open a cell." << std::endl <<
-		"Enter 2 if you want to mark a cell." << std::endl <<
-		"Enter 3 if you want to mark a cell." << std::endl <<
+	std::cout << "Enter 1 to open a cell." << std::endl <<
+		"Enter 2 to mark a cell." << std::endl <<
+		"Enter 3 to unmark a cell." << std::endl <<
 		"YOUR COMMAND: ";
 }
 
@@ -296,17 +297,53 @@ bool HasLost(char** dispBoard, int size) {
 	return false;
 }
 
+bool Replay() {
+	char choice;
+	std::cout << "Do you want to play again?!" << std::endl;
+	do {
+		std::cout << "Enter your choice (Y/N): " << std::endl;
+		std::cin >> choice;
+		choice == 'y' ? choice = 'Y' : choice;
+		choice == 'n' ? choice = 'N' : choice;
+		switch (choice)
+		{
+		case 'Y':
+			return true;
+			break;
+		case'N':
+		{
+			std::cout << "Thank you for playing!" << std::endl;
+			return false;
+			break;
+		}
+		default:
+			std::cout << "Invalid input!" << std::endl;
+			break;
+		}
+	} while (choice != 'Y' || choice != 'N');
+}
+
 void Play(char** realBoard, int size, int minesCount) {
 	char** displayboard = new char* [size];
 	for (int i = 0; i < size; i++) {
 		displayboard[i] = new char[size];
 	}
 	InitBoard(displayboard, size, DISP_CELL);
-	MineGenerator(realBoard, size, minesCount); 
-	while (true) {
+	MineGenerator(realBoard, size, minesCount);
+	bool playersWin = HasWon(realBoard, displayboard, size, minesCount);
+	while (!playersWin) {
 		system("cls");
 		PrintBoard(displayboard, size);
 		PlayerInputCommands(realBoard, displayboard, size);
+		if (HasLost(displayboard, size)) {
+			std::cout << "You can\'t make moves on this board anymore!" << std::endl;
+			break;
+		}
+		playersWin = HasWon(realBoard, displayboard, size, minesCount);
+	}
+	if (playersWin) {
+		std::cout << "CONGRATULATIONS!" << std::endl <<
+			"You have won in this game!" << std::endl;
 	}
 	DeleteMatrix(displayboard, size);
 }
@@ -349,8 +386,12 @@ void Create(int level) {
 
 int main() {
 	const int LEVEL_MIN_VALUE = 0, LEVEL_MAX_VALUE = 5;
-	int userInputBoardSize = 0, userInputLevel = 0;
-    PrintStart();
-	ValidateInput(userInputLevel, LEVEL_MIN_VALUE, LEVEL_MAX_VALUE);
-	Create(userInputLevel);
+	do {
+		system("cls");
+		int userInputBoardSize = 0, userInputLevel = 0;
+		PrintStart();
+		ValidateInput(userInputLevel, LEVEL_MIN_VALUE, LEVEL_MAX_VALUE);
+		Create(userInputLevel);
+	} while (Replay());
+	exit(0);
 }
