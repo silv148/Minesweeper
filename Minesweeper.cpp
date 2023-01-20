@@ -1,6 +1,23 @@
-﻿#include <iostream>
-#include<cstdlib>
-#include<ctime>
+﻿/**
+*
+* Solution to course project # 7
+* Introduction to programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2022/2023
+*
+* @author Silvia Zemedelska
+* @idnumber 6MI0600237
+* @compiler VC
+*
+* <file with all functions>
+*
+* link to github: https://github.com/silv148/Minesweeper
+*
+*/
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 const char MARKED_CELL = 'X', MINE = '@', DISP_CELL = '*', EMPTY_CELL = '0';
 
@@ -162,11 +179,11 @@ void OpenedCell(int& x, int& y, char** realBoard, char** dispBoard, const int si
 }
 
 void OutsideArrBoundary(int& x, int& y, const int size) {
-	bool isNotInArrBoundary = (x < 0 || y < 0 || x > size || y > size);
-	while (isNotInArrBoundary) {
+	bool isInArrBoundary = (x >= 0 && y >= 0 && x < size&& y < size);
+	while (!isInArrBoundary) {
 		std::cout << "Coordinates out of boundary! Try again!" << std::endl;
 		ReentereCoordinates(x, y, size);
-		bool isNotInArrBoundary = (x < 0 || y < 0 || x > size || y > size);
+		isInArrBoundary = (x >= 0 && y >= 0 && x < size&& y < size);
 	}
 }
 
@@ -222,7 +239,7 @@ void PrintInputInfo() {
 }
 
 void ValidateCoordinates(int& x, int& y, char** realBoard, char** dispBoard, int size) {
-	bool isInArrBoundary = x >= 0 || y >= 0 || x < size || y < size;
+	bool isInArrBoundary = (x >= 0 && y >= 0 && x < size&& y < size);
 	if (!isInArrBoundary) {
 		OutsideArrBoundary(x, y, size);
 	}
@@ -243,9 +260,9 @@ void PlayerInputCommands(char** realBoard, char** dispBoard, int size)
 	int x = 0, y = 0;
 	std::cout << "Enter row number: ";
 	std::cin >> x;
+	x -= 1;
 	std::cout << "Enter column number: ";
 	std::cin >> y;
-	x -= 1;
 	y -= 1;
 	ValidateCoordinates(x, y, realBoard, dispBoard, size);
 	switch (command) {
@@ -358,13 +375,13 @@ void Create(int level) {
 	case 4:
 		system("cls");
 
-		std::cout << "Enter size [7 < size < 17]: ";
-		ValidateInput(boardSize, boardSize + 7, boardSize + 17);
+		std::cout << "Enter size [7 < size < 21]: ";
+		ValidateInput(boardSize, boardSize + 7, boardSize + 21);
 
 		std::cout << "Enter mines count ["
-			<< (boardSize - 2) << " < mines count < "
+			<< (boardSize - 1) << " < mines count < "
 			<< (3 * boardSize + 1) << "]: ";
-		ValidateInput(minesCount, boardSize - 2, 3 * boardSize - 1);
+		ValidateInput(minesCount, boardSize - 1, 3 * boardSize + 1);
 		break;
 	}
 
