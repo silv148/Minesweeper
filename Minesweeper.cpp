@@ -42,18 +42,18 @@ void InitBoard(char** realBoard, const int size, const char symbol) {
 
 void PrintBoard(char** board, const int size) {
 	std::cout << std::endl << "    ";
-	for (int i = 0; i < size; i++) {
+	for (int i = 1; i <= size; i++) {
 		i < 10 ? std::cout << "   " << i : std::cout << "  " << i;
 	}
 	std::cout << std::endl << "   ";
 	for (int i = 0; i <= (size * 2); i++) {
 		std::cout << "--";
 	}
-	std::cout << std::endl;
-	for (int i = 0; i < size; i++) {
+	std::cout << "-" << std::endl;
+	for (int i = 1; i <= size; i++) {
 		i < 10 ? std::cout << "   " << i << " | " : std::cout << "  " << i << " | ";
 		for (int j = 0; j < size; j++) {
-			std::cout << board[i][j] << " | ";
+			std::cout << board[i - 1][j] << " | ";
 		}
 		std::cout << std::endl;
 	}
@@ -245,6 +245,8 @@ void PlayerInputCommands(char** realBoard, char** dispBoard, int size)
 	std::cin >> x;
 	std::cout << "Enter column number: ";
 	std::cin >> y;
+	x -= 1;
+	y -= 1;
 	ValidateCoordinates(x, y, realBoard, dispBoard, size);
 	switch (command) {
 	case '1':
@@ -357,7 +359,7 @@ void Create(int level) {
 		system("cls");
 
 		std::cout << "Enter size [7 < size < 17]: ";
-		ValidateInput(boardSize, 7, 17);
+		ValidateInput(boardSize, boardSize + 7, boardSize + 17);
 
 		std::cout << "Enter mines count ["
 			<< (boardSize - 2) << " < mines count < "
