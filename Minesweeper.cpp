@@ -285,14 +285,29 @@ bool HasWon(char** realBoard, char** dispBoard, int size, int minesCount) {
 	return false;
 }
 
+bool HasLost(char** dispBoard, int size) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (dispBoard[i][j] == MINE) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void Play(char** realBoard, int size, int minesCount) {
 	char** displayboard = new char* [size];
 	for (int i = 0; i < size; i++) {
 		displayboard[i] = new char[size];
 	}
 	InitBoard(displayboard, size, DISP_CELL);
-	MineGenerator(realBoard, size, minesCount);
-	PrintBoard(displayboard, size);
+	MineGenerator(realBoard, size, minesCount); 
+	while (true) {
+		system("cls");
+		PrintBoard(displayboard, size);
+		PlayerInputCommands(realBoard, displayboard, size);
+	}
 	DeleteMatrix(displayboard, size);
 }
 
