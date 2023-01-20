@@ -262,6 +262,29 @@ void PlayerInputCommands(char** realBoard, char** dispBoard, int size) {
 	}
 }
 
+bool HasWon(char** realBoard, char** dispBoard, int size, int minesCount) {
+	int minesCounter = 0;
+	int unopenedCells = 0;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (dispBoard[i][j] == MARKED_CELL && realBoard[i][j] == MINE) {
+				minesCounter++;
+			}
+			if (dispBoard[i][j] == DISP_CELL) {
+				unopenedCells++;
+			}
+		}
+	}
+	if (minesCounter == minesCount) {
+		return true;
+	}
+	if (minesCounter - 1 == minesCount && unopenedCells == 1) {
+		return true;
+	}
+
+	return false;
+}
+
 void Play(char** realBoard, int size, int minesCount) {
 	char** displayboard = new char* [size];
 	for (int i = 0; i < size; i++) {
