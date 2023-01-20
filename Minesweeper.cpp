@@ -163,8 +163,8 @@ void OpenedCell(int& x, int& y, char** realBoard, char** dispBoard, const int si
 }
 
 void OutsideArrBoundary(int& x, int& y, const int size) {
-	bool isInArrBoundary = x >= 0 && y >= 0 && x < size&& y < size;
-	while (!isInArrBoundary) {
+	bool isNotInArrBoundary = (x < 0 || y < 0 || x > size || y > size);
+	while (isNotInArrBoundary) {
 		std::cout << "Coordinates out of boundary! Try again!" << std::endl;
 		ReentereCoordinates(x, y, size);
 	}
@@ -215,14 +215,14 @@ void UnmarkCell(int x, int y, char** dispBoard, int size) {
 }
 
 void PrintInputInfo() {
-	std::cout << "Enter 1 if you want to open a cell." << std::endl <<
-		"Enter 2 if you want to mark a cell." << std::endl <<
-		"Enter 3 if you want to mark a cell." << std::endl <<
+	std::cout << "Enter 1 to open a cell." << std::endl <<
+		"Enter 2 to mark a cell." << std::endl <<
+		"Enter 3 to unmark a cell." << std::endl <<
 		"YOUR COMMAND: ";
 }
 
 void ValidateCoordinates(int& x, int& y, char** realBoard, char** dispBoard, int size) {
-	bool isInArrBoundary = x >= 0 && y >= 0 && x < size&& y < size;
+	bool isInArrBoundary = x >= 0 || y >= 0 || x < size || y < size;
 	if (isInArrBoundary) {
 		OutsideArrBoundary(x, y, size);
 	}
