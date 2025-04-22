@@ -1,7 +1,7 @@
 # Minesweeper
-Minesweeper game: console version written in C++
+Minesweeper game: console version written in both C++ and C
 
-This project uses the following libraries: 
+This project(C++ version) uses the following libraries: 
 *iostream, cstdlib, ctime*
 
 There are 4 levels of difficulty:
